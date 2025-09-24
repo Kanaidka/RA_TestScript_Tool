@@ -8,35 +8,45 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
+'クラス　PRSUP
+'PRSのUPデータを管理します
 
 Private mText As String
 Private mID As String
 Private mOPs() As PRSOP
 Private mOPIndex As Long
 
-Public Property Get Text() As String
-    Text = mText
+'プロパティ　Text(Get)
+Public Property Get text() As String
+    text = mText
 End Property
 
-Public Property Let Text(ByVal iValue As String)
+'プロパティ　Text(Let)
+Public Property Let text(ByVal iValue As String)
     mText = iValue
 End Property
 
-Public Property Get ID() As String
-    ID = mID
+'プロパティ　ID(Get)
+Public Property Get id() As String
+    id = mID
 End Property
 
-Public Property Let ID(ByVal iValue As String)
+'プロパティ　ID(Let)
+Public Property Let id(ByVal iValue As String)
     mID = iValue
 End Property
 
+'プロパティ　OPs(Get)
 Public Property Get OPs()
     OPs = mOPs
 End Property
 
-Public Sub AddOP(ByVal iOp As PRSOP)
+'関数　AddUP
+'引数　iOP　対象OP
+'OP情報を追加する
+Public Sub AddOP(ByVal iOP As PRSOP)
     ReDim Preserve mOPs(mOPIndex)
-    Set mOPs(mOPIndex) = iOp
+    Set mOPs(mOPIndex) = iOP
     mOPIndex = mOPIndex + 1
 End Sub
 

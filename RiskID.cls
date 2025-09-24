@@ -8,18 +8,26 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
+'クラス　RiskID
+'RiskIDデータを管理します
 
 Private mID As String
 Private mText As String
 
-Public Property Get ID()
-    ID = mID
+'プロパティ　ID(Get)
+Public Property Get id()
+    id = mID
 End Property
 
-Public Property Get Text()
-    Text = mText
+'プロパティ　Text(Get)
+Public Property Get text()
+    text = mText
 End Property
 
+'関数　Init
+'引数　iID　ID
+'引数　iText　Text
+'初期化処理
 Public Sub Init(ByVal iID As String, ByVal iText As String)
     mID = iID
     mText = iText

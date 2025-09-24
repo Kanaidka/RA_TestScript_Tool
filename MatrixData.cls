@@ -8,10 +8,13 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
+'クラス　MatrixData
+'Matrixデータを管理します
 
-Private Const ROW_INDEX_COLUMN_HEADER As Long = 3
-Private Const ROW_INDEX_DATA As Long = 4
+Private Const ROW_INDEX_COLUMN_HEADER As Long = 3 'ヘッダ行番号
+Private Const ROW_INDEX_DATA As Long = 4 'データ行番号
 
+'列名(ヘッダ)情報
 Private Const COLUMN_HEADER_PHASE As String = "Phase"
 Private Const COLUMN_HEADER_BUNDLE As String = "知見者"
 Private Const COLUMN_HEADER_VERSION As String = "version"
@@ -47,11 +50,11 @@ Private Const COLUMN_HEADER_LISKID_I_2 As String = "I-2"
 Private Const COLUMN_HEADER_LISKID_I_3 As String = "I-3"
 Private Const COLUMN_HEADER_LISKID_J_1 As String = "J-1"
 Private Const COLUMN_HEADER_LISKID_K_1 As String = "K-1"
-Private Const COLUMN_HEADER_LISKID_L_1 As String = "L1"
+Private Const COLUMN_HEADER_LISKID_L_1 As String = "L-1"
 
+Private mRows() As MatrixRow '行データ格納
 
-Private mRows() As MatrixRow
-
+'列情報
 Public ColumnPhase As New Column
 Public ColumnBundle As New Column
 Public ColumnVersion As New Column
@@ -89,13 +92,13 @@ Public ColumnRiskID_J_1 As New Column
 Public ColumnRiskID_K_1 As New Column
 Public ColumnRiskID_L_1 As New Column
 
-Private mColumnRiskIDs() As Column
+Private mColumnRiskIDs() As Column 'RiskIDまとめ
 
-Public Property Get Rows()
-    Rows = mRows
-End Property
-
+'イベント　クラスの初期化
+'クラスの初期化を行う
 Private Sub Class_Initialize()
+    
+    '列情報の初期化
     Call ColumnPhase.Init(COLUMN_HEADER_PHASE)
     Call ColumnBundle.Init(COLUMN_HEADER_BUNDLE)
     Call ColumnVersion.Init(COLUMN_HEADER_VERSION)
@@ -133,6 +136,7 @@ Private Sub Class_Initialize()
     Call ColumnRiskID_K_1.Init(COLUMN_HEADER_LISKID_K_1)
     Call ColumnRiskID_L_1.Init(COLUMN_HEADER_LISKID_L_1)
     
+    'リスクID列のまとめ
     ReDim mColumnRiskIDs(32)
     Set mColumnRiskIDs(0) = ColumnRiskID_A_2
     Set mColumnRiskIDs(1) = ColumnRiskID_A_1
@@ -170,13 +174,18 @@ Private Sub Class_Initialize()
     
 End Sub
 
+'関数　Load
+'引数　iWs　対象ワークシート
+'対象ワークシートよりMatrix情報を取得する
 Public Sub Load(ByRef iWs As Worksheet)
     
     Dim i As Long
     Dim j As Long
     Dim rowIndex As Long
     Dim rowIndexLast As Long
+    Dim risk As RiskID
         
+    '各列番号検索
     Call ColumnPhase.SetIndexPrefix(iWs, ROW_INDEX_COLUMN_HEADER)
     Call ColumnBundle.SetIndexPrefix(iWs, ROW_INDEX_COLUMN_HEADER)
     Call ColumnVersion.SetIndexPrefix(iWs, ROW_INDEX_COLUMN_HEADER)
@@ -184,22 +193,25 @@ Public Sub Load(ByRef iWs As Worksheet)
         Call mColumnRiskIDs(i).SetIndexPrefix(iWs, ROW_INDEX_COLUMN_HEADER)
     Next
     
+    'Phaseの最終データ行を取得
     rowIndexLast = iWs.Cells(iWs.Rows.Count, ColumnPhase.Index).End(xlUp).row
     
+    'データ数分のデータ配列確保
     ReDim mRows(rowIndexLast - ROW_INDEX_DATA)
-    Dim risk As RiskID
     i = 0
+    '各行の読込
     For rowIndex = ROW_INDEX_DATA To rowIndexLast
         Set mRows(i) = New MatrixRow
         With mRows(i)
-            .Phase = iWs.Cells(rowIndex, ColumnPhase.Index).value
-            .Bundle = iWs.Cells(rowIndex, ColumnBundle.Index).value
-            .Version = iWs.Cells(rowIndex, ColumnVersion.Index).value
+            .Phase = iWs.Cells(rowIndex, ColumnPhase.Index).Value
+            .Bundle = iWs.Cells(rowIndex, ColumnBundle.Index).Value
+            .Version = iWs.Cells(rowIndex, ColumnVersion.Index).Value
             
+            'リスクID列の取込
             For j = 0 To UBound(mColumnRiskIDs)
-                If iWs.Cells(rowIndex, mColumnRiskIDs(j).Index).value <> "" Then
+                If iWs.Cells(rowIndex, mColumnRiskIDs(j).Index).Value <> "" Then
                     Set risk = New RiskID
-                    Call risk.Init(mColumnRiskIDs(j).Name, iWs.Cells(rowIndex, mColumnRiskIDs(j).Index).value)
+                    Call risk.Init(mColumnRiskIDs(j).Name, iWs.Cells(rowIndex, mColumnRiskIDs(j).Index).Value)
                     Call .AddRiskID(risk)
                 End If
             Next
@@ -210,11 +222,16 @@ Public Sub Load(ByRef iWs As Worksheet)
 
 End Sub
 
+'関数　GetRows
+'引数　iKey　フェーズ名
+'戻り値　Matrix行
+'フェーズ名より該当するMatrixRowを取得する
 Public Function GetRow(ByVal iKey As String) As MatrixRow
 
     Dim i As Long
     For i = LBound(mRows) To UBound(mRows)
-        If mRows(i).Key = iKey Then
+        'フェーズキーの取得
+        If mRows(i).key = iKey Then
             Set GetRow = mRows(i)
             Exit For
         End If

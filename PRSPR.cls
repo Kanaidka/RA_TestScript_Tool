@@ -8,25 +8,33 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
+'クラス　PRSPR
+'PRSのPRデータを管理します
 
 Private mText As String
 Private mUPs() As PRSUP
 Private mUPIndex As Long
 
-Public Property Get Text() As String
-    Text = mText
+'プロパティ　Text(Get)
+Public Property Get text() As String
+    text = mText
 End Property
 
-Public Property Let Text(ByVal iValue As String)
+'プロパティ　Text(Let)
+Public Property Let text(ByVal iValue As String)
     mText = iValue
 End Property
 
+'プロパティ　UPs(Get)
 Public Property Get UPs()
     UPs = mUPs
 End Property
 
-Public Sub AddUP(ByVal iUp As PRSUP)
+'関数　AddUP
+'引数　iUP　対象UP
+'UP情報を追加する
+Public Sub AddUP(ByVal iUP As PRSUP)
     ReDim Preserve mUPs(mUPIndex)
-    Set mUPs(mUPIndex) = iUp
+    Set mUPs(mUPIndex) = iUP
     mUPIndex = mUPIndex + 1
 End Sub
